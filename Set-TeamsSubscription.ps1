@@ -17,7 +17,7 @@ param (
 $ErrorActionPreference = "STOP"
 
 if ($PSPrivateMetadata.JobId) {
-    $servicePrincipalConnection = Get-AutomationConnection -Name $connectionName
+    $servicePrincipalConnection = Get-AutomationConnection -Name "AzureRunAsConnection"
     Connect-ExchangeOnline -CertificateThumbPrint $servicePrincipalConnection.CertificateThumbprint -AppID $servicePrincipalConnection.ApplicationId -Organization $servicePrincipalConnection.TenantId
 }
 else {
