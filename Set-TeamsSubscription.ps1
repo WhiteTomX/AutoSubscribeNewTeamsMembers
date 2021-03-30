@@ -19,8 +19,9 @@ param (
 $ErrorActionPreference = "STOP"
 
 if ($PSPrivateMetadata.JobId) {
+    Write-Output "Connecting via Automation Run As Account"
     $servicePrincipalConnection = Get-AutomationConnection -Name "AzureRunAsConnection"
-    Connect-ExchangeOnline -CertificateThumbPrint $servicePrincipalConnection.CertificateThumbprint -AppID $servicePrincipalConnection.ApplicationId -Organization $Organization
+    Connect-ExchangeOnline -CertificateThumbprint $servicePrincipalConnection.CertificateThumbprint -AppId $servicePrincipalConnection.ApplicationId -Organization $Organization –ShowBanner:$false
 }
 else {
     Connect-ExchangeOnline
