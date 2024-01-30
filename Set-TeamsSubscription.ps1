@@ -1,31 +1,22 @@
 <#
 .SYNOPSIS
-Automatically subscribe to Teams to get Events
+Automatically enable all Teams to subscribe its Members
 .DESCRIPTION
 Enable AutoSubscribeNewMembers on all Teams Office 365 Groups
 Subscribe all members to not enabled groups
-.PARAMETER Organization
-Domain of the Organization used when connecting in AzureAutomation Account
-.PARAMETER Team
-Only process given team
 #>
+
+#requires -Modules @{ModuleName="ExchangeOnlineManagement";ModuleVersion="3.0.0"}
 
 [CmdletBinding()]
 param (
-    [String]$Organization,
+    # Display Name of the team to process. Processes all Teams if empty.
     [String]$Team
 )
 
 $ErrorActionPreference = "STOP"
 
-if ($PSPrivateMetadata.JobId) {
-    Write-Output "Connecting via Automation Run As Account"
-    $servicePrincipalConnection = Get-AutomationConnection -Name "AzureRunAsConnection"
-    Connect-ExchangeOnline -CertificateThumbprint $servicePrincipalConnection.CertificateThumbprint -AppId $servicePrincipalConnection.ApplicationId -Organization $Organization –ShowBanner:$false
-}
-else {
-    Connect-ExchangeOnline
-}
+Connect-ExchangeOnline
 
 $Groups = Get-UnifiedGroup -Filter { ResourceProvisioningOptions -eq "Team" } -ResultSize Unlimited | Where-Object { $_.AutoSubscribeNewMembers -eq $False -Or $_.AlwaysSubscribeMembersToCalendarEvents -eq $False }
 if ($Team) {
