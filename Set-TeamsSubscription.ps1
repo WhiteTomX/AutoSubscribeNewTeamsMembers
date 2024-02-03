@@ -10,8 +10,8 @@ Subscribe all members to not enabled groups
 
 [CmdletBinding()]
 param (
-    # Display Name of the team to process. Processes all Teams if empty.
-    [String]$Team
+    # Display Name of team or teams to process. Processes all Teams if empty.
+    [String[]]$Team
 )
 
 $ErrorActionPreference = "STOP"
@@ -20,7 +20,7 @@ Connect-ExchangeOnline
 
 $Groups = Get-UnifiedGroup -Filter { ResourceProvisioningOptions -eq "Team" } -ResultSize Unlimited | Where-Object { $_.AutoSubscribeNewMembers -eq $False -Or $_.AlwaysSubscribeMembersToCalendarEvents -eq $False }
 if ($Team) {
-    $Groups = $Groups | Where-Object { $_.DisplayName -eq $Team }
+    $Groups = $Groups | Where-Object { $_.DisplayName -in $Team }
 }
 
 ForEach ($Group in $Groups) {
