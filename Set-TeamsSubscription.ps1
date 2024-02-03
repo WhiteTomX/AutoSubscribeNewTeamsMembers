@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-Automatically enable all Teams to subscribe its Members
+Automatically enable all Teams to subscribe its members
 .DESCRIPTION
-Enable AutoSubscribeNewMembers on all Teams Office 365 Groups
+Enable AutoSubscribeNewmembers on all Teams Office 365 groups
 Subscribe all members to not enabled groups
 #>
 
@@ -18,25 +18,23 @@ $ErrorActionPreference = "STOP"
 
 Connect-ExchangeOnline
 
-$Groups = Get-UnifiedGroup -Filter { ResourceProvisioningOptions -eq "Team" } -ResultSize Unlimited | Where-Object { $_.AutoSubscribeNewMembers -eq $False -Or $_.AlwaysSubscribeMembersToCalendarEvents -eq $False }
+$groups = Get-UnifiedGroup -Filter { ResourceProvisioningOptions -eq "Team" } -ResultSize Unlimited | Where-Object { $_.AutoSubscribeNewmembers -eq $False -Or $_.AlwaysSubscribemembersToCalendarEvents -eq $False }
 if ($Team) {
-    $Groups = $Groups | Where-Object { $_.DisplayName -in $Team }
+    $groups = $groups | Where-Object { $_.DisplayName -in $Team }
 }
 
-ForEach ($Group in $Groups) {
-    Write-Output "Processing $($Group.DisplayName)"
+ForEach ($group in $groups) {
+    Write-Output "Processing $($group.DisplayName)"
     # Update group so that new members are added to the subscriber list and will receive calendar events
-    Set-UnifiedGroup -Identity $Group.ExternalDirectoryObjectId -AutoSubscribeNewMembers:$True -AlwaysSubscribeMembersToCalendarEvents
+    Set-UnifiedGroup -Identity $group.ExternalDirectoryObjectId -AutoSubscribeNewmembers:$True -AlwaysSubscribemembersToCalendarEvents
     # Get current members and the subscribers list
-    $Members = Get-UnifiedGroupLinks -Identity $Group.ExternalDirectoryObjectId -LinkType Member
-    $Subscribers = Get-UnifiedGroupLinks -Identity $Group.ExternalDirectoryObjectId -LinkType Subscribers
+    $members = Get-UnifiedGroupLinks -Identity $group.ExternalDirectoryObjectId -LinkType Member
+    $subscribers = Get-UnifiedGroupLinks -Identity $group.ExternalDirectoryObjectId -LinkType Subscribers
     # Check each member and if they're not in the subscriber list, add them
-    ForEach ($Member in $Members) {
-        If ($Member.ExternalDirectoryObjectId -notin $Subscribers.ExternalDirectoryObjectId) {
-            # Not in the list
-            #    Write-Host "Adding" $Member.PrimarySmtpAddress "as a subscriber"
-            Add-UnifiedGroupLinks -Identity $Group.ExternalDirectoryObjectId -LinkType Subscribers -Links $Member.PrimarySmtpAddress
-            Write-Output "Subscribed $($Member.PrimarySmtpAddress) to $($Group.DisplayName)"
+    ForEach ($member in $members) {
+        If ($member.ExternalDirectoryObjectId -notin $subscribers.ExternalDirectoryObjectId) {
+            Add-UnifiedGroupLinks -Identity $group.ExternalDirectoryObjectId -LinkType subscribers -Links $member.PrimarySmtpAddress
+            Write-Output "Subscribed $($member.PrimarySmtpAddress) to $($group.DisplayName)"
         }
     }
 }
